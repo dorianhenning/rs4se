@@ -117,7 +117,7 @@ static inline uint64_t str2ts(const std::string &s) {
   uint64_t ts = 0;
   int idx = 0;
 
-  for (size_t i = s.length() - 1; i >= 0; i--) {
+  for (int i = s.length() - 1; i >= 0; i--) {
     const char c = s[i];
 
     if (c != '.') {
