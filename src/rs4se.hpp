@@ -117,7 +117,7 @@ static inline uint64_t str2ts(const std::string &s) {
   uint64_t ts = 0;
   int idx = 0;
 
-  for (int i = s.length() - 1; i >= 0; i--) {
+  for (size_t i = s.length() - 1; i >= 0; i--) {
     const char c = s[i];
 
     if (c != '.') {
@@ -150,10 +150,13 @@ uint64_t vframe2ts(const rs2::video_frame &vf) {
   const auto frame_ts_ns = static_cast<uint64_t>(frame_ts_us) * 1000;
   // -- Sensor metadata timestamp
   const auto sensor_meta_key = RS2_FRAME_METADATA_SENSOR_TIMESTAMP;
-  const auto sensor_ts_us = vf.get_frame_metadata(sensor_meta_key);
-  const auto sensor_ts_ns = static_cast<uint64_t>(sensor_ts_us) * 1000;
-  // -- Half exposure time
-  const auto half_exposure_time_ns = frame_ts_ns - sensor_ts_ns;
+  uint64_t half_exposure_time_ns = 0;
+  if (vf.supports_frame_metadata(sensor_meta_key)) {
+    const auto sensor_ts_us = vf.get_frame_metadata(sensor_meta_key);
+    const auto sensor_ts_ns = static_cast<uint64_t>(sensor_ts_us) * 1000;
+    // -- Half exposure time
+    half_exposure_time_ns = frame_ts_ns - sensor_ts_ns;
+  }
 
   // Calculate corrected timestamp
   const auto ts_ms = vf.get_timestamp();
